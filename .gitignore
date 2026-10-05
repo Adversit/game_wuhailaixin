@@ -6,3 +6,8 @@ __pycache__/
 !.env.example
 .sites-runtime/
 *.log
+dist/client/
+dist/server/
+dist/.openai/
+.wrangler/
+coverage/
