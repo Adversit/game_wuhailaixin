@@ -25,3 +25,13 @@ test('all 512 story paths remain saveable in both normal and infinite-resource m
     assert.deepEqual(normalizeSave(s), s);
   }
 });
+
+
+test('island commissions migrate, enforce prerequisites and settle only once',()=>{
+ const s=initialState();delete s.commissions;assert.deepEqual(normalizeSave(s).commissions,[]);
+ const before=JSON.stringify(s);assert.equal(act(s,'commission','seed').ok,false);assert.equal(JSON.stringify(s),before);
+ s.completed.push('forest');s.location='forest';s.resources={shell:30,wood:20,star:0};
+ assert.equal(act(s,'commission','seed').ok,true);assert.equal(s.resources.star,6);assert.equal(s.resources.wood,12);assert.ok(normalizeSave(s));
+ const after=JSON.stringify(s);assert.equal(act(s,'commission','seed').ok,false);assert.equal(JSON.stringify(s),after);
+ s.commissions=['unknown'];assert.equal(normalizeSave(s),null);
+});

@@ -43,7 +43,12 @@ export const AMBIENT=[
  {title:'夜航的小集市',text:'渔船擦肩而过，船主送你几块木料。你替他把一声问候带给了港口，交易就算完成了。',give:{wood:5,shell:5}}
 ];
 export const UPGRADES=[{id:'cabin',name:'温暖船舱',desc:'舒适一点，才能走得远一点。每级精力上限 +2。',icon:'home',cost:{wood:10,shell:20}}, {id:'net',name:'拾光渔网',desc:'捞起海上遗落的宝物。每级探索物资收益 +25%。',icon:'box',cost:{wood:8,shell:18}}, {id:'lantern',name:'星屑航灯',desc:'把微光留在船头。每级探索额外获得 1 星屑。',icon:'sun',cost:{wood:8,star:5}}];
-export const initialState=()=>({version:1,location:'harbor',day:1,turn:0,energy:6,resources:{shell:36,wood:10,star:3},progress:{harbor:0,forest:0,bay:0,stars:0,light:0},completed:[],letters:[],relics:[],upgrades:{cabin:0,net:0,lantern:0},kindness:0,ending:null,endings:[],infinite:false,explorations:0,log:[{day:1,title:'旅途开始',text:'你接过晚安号的船钥匙。海风很轻，今天适合出发。'}],result:null});
+export const COMMISSIONS=[
+ {id:'seed',name:'阿榆的漂流苗圃',location:'forest',cost:{wood:8,shell:10},give:{star:6},desc:'听风林的故事结束后，送来木箱与种苗钱，让树苗越过海雾。',text:'阿榆把三棵小树安放进木箱。下一趟邮船会把春天送到新的岛上。'},
+ {id:'bellrope',name:'给旧钟楼换一根绳',location:'bay',cost:{wood:12,star:2},give:{shell:40},desc:'沉钟湾的故事结束后，带来浮木与星屑，修复旧钟楼。',text:'你和钟叔把新绳系好。钟声穿过海雾，码头上的人们纷纷停下了脚步。'},
+ {id:'starchart',name:'寄往远方的星图',location:'stars',cost:{shell:30,wood:6},give:{star:10},desc:'星眠台的故事结束后，资助一批防水星图，把航路交给后来人。',text:'星图师在每张图的边角都画了一盏小灯。你把它们装进邮袋：这次，收件人是所有迷路的人。'},
+];
+export const initialState=()=>({version:1,location:'harbor',day:1,turn:0,energy:6,resources:{shell:36,wood:10,star:3},progress:{harbor:0,forest:0,bay:0,stars:0,light:0},completed:[],letters:[],relics:[],upgrades:{cabin:0,net:0,lantern:0},kindness:0,ending:null,endings:[],infinite:false,explorations:0,commissions:[],log:[{day:1,title:'旅途开始',text:'你接过晚安号的船钥匙。海风很轻，今天适合出发。'}],result:null});
 export const maxEnergy=s=>6+s.upgrades.cabin*2;
 export const sceneFor=s=>SCENES[s.location][s.progress[s.location]];
 export const unlocked=(s,l)=>s.letters.length>=l.need;
@@ -77,6 +82,13 @@ export function act(s,action,payload){
   if(!s.infinite)s.energy--;const event=AMBIENT[s.explorations%AMBIENT.length];s.explorations++;tick(s);
   const rewards=Object.fromEntries(Object.entries(event.give).map(([k,v])=>[k,Math.ceil(v*(1+s.upgrades.net*.25))]));rewards.star=(rewards.star||0)+s.upgrades.lantern;if(!rewards.star)delete rewards.star;
   give(s,rewards);addUnique(s.relics,event.relic);s.result={title:event.title,text:event.text,give:rewards,relic:event.relic};log(s,event.title,event.text);return {ok:true};
+ }
+ if(action==='commission'){
+  const job=COMMISSIONS.find(c=>c.id===payload);if(!job)return {ok:false};
+  if((s.commissions||[]).includes(job.id))return {ok:false,message:'这份心意已经送达，不需要重复交付。'};
+  if(s.location!==job.location||!s.completed.includes(job.location))return {ok:false,message:'先完成当地故事，再到这座岛交付委托。'};
+  if(!affordable(s,job.cost))return {ok:false,message:'委托物资还不齐，沿岸探索后再来吧。'};
+  spend(s,job.cost);give(s,job.give);s.commissions=[...(s.commissions||[]),job.id];s.kindness+=2;tick(s);log(s,job.name,job.text);s.result={title:'委托送达 · '+job.name,text:job.text,give:job.give};return {ok:true,message:'心意已送达，奖励已收入行囊。'};
  }
  if(action==='upgrade'){
   const item=UPGRADES.find(x=>x.id===payload);if(!item||s.upgrades[payload]>=3)return {ok:false,message:'这项设施已经升到满级了。'};

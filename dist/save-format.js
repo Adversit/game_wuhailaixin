@@ -1,4 +1,4 @@
-import { LOCATIONS, LETTERS, RELICS, UPGRADES, SCENES, maxEnergy } from './game.js';
+import { LOCATIONS, LETTERS, RELICS, UPGRADES, SCENES, maxEnergy, COMMISSIONS } from './game.js';
 
 export const MAX_SAVE_BYTES = 256_000;
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -20,7 +20,7 @@ export function normalizeSave(s) {
       !LOCATIONS.every(l => integer(s.progress[l.id], 0, SCENES[l.id].length)) ||
       !integer(s.energy, 0, maxEnergy(s)) || !resources(s.resources) ||
       !['shell', 'wood', 'star'].every(k => integer(s.resources[k])) ||
-      !collection(s.completed, locationIds) || !collection(s.letters, letterIds) ||
+      !collection(s.commissions ?? [], COMMISSIONS.map(c=>c.id)) || !collection(s.completed, locationIds) || !collection(s.letters, letterIds) ||
       !collection(s.relics, Object.keys(RELICS)) || !collection(s.endings, endingIds) ||
       !(s.ending === null || endingIds.includes(s.ending) && s.endings.includes(s.ending)) ||
       !Array.isArray(s.log) || s.log.length > 100 ||
@@ -39,7 +39,7 @@ export function normalizeSave(s) {
     version: 1, location: s.location, day: s.day, turn: s.turn, energy: s.energy,
     resources: Object.fromEntries(['shell', 'wood', 'star'].map(k => [k, s.resources[k]])),
     progress: Object.fromEntries(locationIds.map(k => [k, s.progress[k]])),
-    completed: [...s.completed], letters: [...s.letters], relics: [...s.relics],
+    commissions: [...(s.commissions||[])], completed: [...s.completed], letters: [...s.letters], relics: [...s.relics],
     upgrades: Object.fromEntries(UPGRADES.map(u => [u.id, s.upgrades[u.id]])),
     kindness: s.kindness, ending: s.ending, endings: [...s.endings], infinite: s.infinite,
     explorations: s.explorations, log: s.log.map(l => ({day: l.day, title: l.title, text: l.text})), result,
