@@ -96,7 +96,7 @@ test('two windows pause on revision conflict, preserve local progress, and requi
   assert.equal(env.sqlite.prepare('SELECT revision FROM game_saves').get().revision, before);
   assert.equal(second.cloud.resolve('local'), true); await second.cloud.flush();
   assert.equal(second.cloud.record.revision, 3);
-  assert.equal(JSON.parse(env.sqlite.prepare('SELECT payload FROM game_saves').get().payload).explorations, 3);
+  assert.equal(JSON.parse(env.sqlite.prepare('SELECT state_json AS payload FROM game_saves').get().payload).explorations, 3);
   assert.ok([...second.storage.data.keys()].some(k => k.startsWith(CACHE_PREFIX) && k.includes(':backup:')));
 });
 
@@ -148,4 +148,16 @@ test('shared cache preserves another window\'s unsynced snapshot before overwrit
   await a.cloud.connect(); await b.cloud.connect(); play(a); play(a); play(b);
   const backups = [...storage.data.entries()].filter(([key]) => key.includes(':backup:')).map(([,raw]) => JSON.parse(raw));
   assert.ok(backups.some(v => v.reason === 'other-window-before-cache-update' && v.save.explorations === 2));
+});
+
+
+test('deployed v2 pending saves survive the new account-cache format', async t => {
+  const env = database(); t.after(() => env.sqlite.close());
+  const storage = new MemoryStorage(), save = initialState(); save.day = 9;
+  storage.setItem('mistbound-cloud-pending:A', JSON.stringify({user:'A',state:save,revision:0,operationId:'12345678-1234-1234-1234-123456789abc'}));
+  const c = client(t,{DB:env.DB,storage}); await c.cloud.connect();
+  assert.equal(c.state.day,9); await c.cloud.flush();
+  assert.equal(c.cloud.record.revision,1);
+  assert.equal(JSON.parse(env.sqlite.prepare('SELECT state_json FROM game_saves').get().state_json).day,9);
+  c.identity.id='B'; await c.cloud.connect(); assert.equal(c.state.day,1);
 });

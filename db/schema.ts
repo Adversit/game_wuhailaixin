@@ -1,9 +1,9 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
-export const gameSaves = sqliteTable("game_saves", {
-  userId: text("user_id").primaryKey(),
-  payload: text("payload").notNull(),
-  revision: integer("revision").notNull().default(1),
-  writeId: text("write_id").notNull(),
-  updatedAt: text("updated_at").notNull(),
+export const gameSaves = sqliteTable('game_saves', {
+  userId: text('user_id').primaryKey(),
+  stateJson: text('state_json').notNull(),
+  revision: integer('revision').notNull(),
+  operationId: text('operation_id').notNull(),
+  updatedAt: text('updated_at').notNull(),
 });

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "0e2b675a-cb4f-43bd-b1ca-116ca9bdd54e",
+  "id": "d9c8942e-b118-4688-9a9f-b90580f452cb",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "game_saves": {
@@ -14,8 +14,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "payload": {
-          "name": "payload",
+        "state_json": {
+          "name": "state_json",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -26,11 +26,10 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": 1
+          "autoincrement": false
         },
-        "write_id": {
-          "name": "write_id",
+        "operation_id": {
+          "name": "operation_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true,

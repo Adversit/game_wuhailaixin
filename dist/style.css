@@ -9,3 +9,11 @@
 
 /* Keep frequently used controls readable at every viewport. */
 .choice small,.quick-actions small,.text-button,.mission>p,.energy-title,.mission-footer,.save-state{font-size:12px}.companion small,.recent-item>p{font-size:12px}.nav-item{font-size:14px}@media(max-width:700px){.nav-item{font-size:12px}.quick-actions small{font-size:11px}.island-state,.island-info>small,.letter-card>p,.letter-card>small{font-size:12px}.island-info>small{max-width:170px}.letter-card{min-height:285px}.upgrade .secondary small,.setting-row>.secondary{font-size:12px}}
+
+/* Journey progress stays close to the story, including on small screens. */
+.journey-guide{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px 22px;margin-bottom:20px;border:1px solid #53635a;background:linear-gradient(110deg,#263832,#192a31);border-radius:14px}
+.journey-guide>div{flex:1}.journey-guide span{display:block;font-size:.875rem;color:var(--gold)}.journey-guide strong{display:block;font-size:1rem;margin:3px 0 10px}.journey-guide .meter{max-width:340px;height:4px}
+.mobile-save-status{display:none}.choice small,.upgrade p,.page-top-note,.island-info small,.setting-row p,.dialog-copy{font-size:.875rem;line-height:1.75}.story>p,.letter-body p{font-size:1.0625rem;line-height:1.95}
+button:disabled{opacity:.5;cursor:not-allowed}.choice:disabled{border-style:dashed}.icon-button,.secondary,.primary{min-height:44px}
+@media(max-width:800px){.mobile-save-status{display:flex;align-items:center;gap:8px;width:100%;padding:10px 0;margin-bottom:12px;background:transparent;text-align:left;font-size:.875rem;color:var(--teal)}.journey-guide{padding:15px;gap:12px;align-items:stretch;flex-direction:column}.journey-guide .meter{max-width:none}.journey-guide button{width:100%}.resources{gap:12px}.resource-label{font-size:.75rem}.story>p{font-size:1rem}.nav-item{min-height:48px}.layout{padding-bottom:env(safe-area-inset-bottom)}dialog{max-height:calc(100dvh - 32px);overflow:auto}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

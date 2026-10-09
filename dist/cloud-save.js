@@ -57,7 +57,17 @@ export class CloudSave {
   readCache(userId) {
     const raw = this.read(cacheKey(userId));
     this.lastPersisted.set(cacheKey(userId), raw);
-    if (!raw) return fresh(userId);
+    if (!raw) {
+      // Preserve unacknowledged saves left by the deployed v2 client.
+      if (userId) try {
+        const old = JSON.parse(this.read('mistbound-cloud-pending:' + userId) || 'null');
+        const save = normalizeSave(old?.state);
+        if (old?.user === userId && save && validRevision(old.revision) && typeof old.operationId === 'string' && /^[a-zA-Z0-9_-]{16,80}$/.test(old.operationId)) {
+          return {format: 1, userId, save, revision: old.revision, syncedSave: null, pending: {save, expectedRevision: old.revision, writeId: old.operationId}};
+        }
+      } catch { /* Keep old bytes untouched. */ }
+      return fresh(userId);
+    }
     try {
       const r = JSON.parse(raw), save = normalizeSave(r.save);
       const syncedSave = r.syncedSave === null ? null : normalizeSave(r.syncedSave);
@@ -102,6 +112,8 @@ export class CloudSave {
 
   loadLegacy() {
     if (this.read(CLAIM_KEY)) return null;
+    const oldOwner = this.read('mistbound-letters-migration-owner');
+    if (oldOwner && oldOwner !== this.user?.id) return null;
     const raw = this.read(LEGACY_KEY);
     if (!raw) return null;
     try {const save = normalizeSave(JSON.parse(raw)); if (!save) throw new Error(); return save;}

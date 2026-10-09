@@ -18,7 +18,7 @@ test('schema, identity isolation, no-store and CAS use the real generated SQL', 
   assert.equal((await b.json()).save, null);
   assert.match(a.headers.get('cache-control'), /no-store/);
   assert.equal(env.sqlite.prepare('SELECT count(*) AS n FROM game_saves').get().n, 1);
-  assert.match(env.sqlite.prepare('EXPLAIN QUERY PLAN SELECT payload FROM game_saves WHERE user_id = ?').get('A').detail, /INDEX/);
+  assert.match(env.sqlite.prepare('EXPLAIN QUERY PLAN SELECT state_json AS payload FROM game_saves WHERE user_id = ?').get('A').detail, /INDEX/);
   const stolen = await worker.fetch(request('/api/save', {user: 'B', method: 'PUT', body: put(state, 0, crypto.randomUUID(), 'A')}), env);
   assert.equal(stolen.status, 409);
   assert.equal((await stolen.json()).error, 'account_changed');

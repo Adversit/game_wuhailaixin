@@ -143,3 +143,7 @@ npx wrangler deploy --dry-run --config dist/server/wrangler.json --outdir .sites
 - `wrangler deploy --dry-run`：通过，识别 DB 和 ASSETS，未发布到线上。
 - DOM 冒烟验证：执行实际前端模块，检查启动、剧情点击、存档状态、设置、无限物资开关和账号切换，均通过。使用的是 DOM 模拟环境，不是完整浏览器。
 - 本次容器启动常规 Wrangler 预览时报 `uv_interface_addresses` 错误；另行尝试原生 workerd 请求也未能完成初始化，浏览器下载被环境阻断。因此未完成真实浏览器登录、原生 Worker API 端到端和线上跨设备验收；上表中对应步骤仍需部署后执行。
+
+## 2026-10-09 线上兼容更新
+
+已整合现有 Sites 云存档版本。生产数据库仍保留原 `state_json`、`operation_id` 字段和 `0000_useful_reptil.sql` 迁移；存储适配器通过 SQL 别名返回 `payload`、`write_id`，无需重建表或迁移玩家数据。此前文档中的 `payload`、`write_id` 为 API 适配后的字段名称，不是当前物理列名。
